@@ -22,6 +22,8 @@ now,
 after doing all the code work we will put this json data into the postman's head as a json data
 and then perform all the opeations that are needed to check out application
 
+
+-->  this is for dishes model
 	{
 		"name":"Rishabh",
 		"image":"images/rishabh.png",
@@ -53,4 +55,22 @@ and then perform all the opeations that are needed to check out application
 	}
 
 
-	
+-->  this is for promotions model
+ {
+      "name": "Weekend Grand Buffet",
+      "image": "images/buffet.png",
+      "label": "New",
+      "price": "19.99",
+      "description": "Featuring . . .",
+      "featured": false
+}
+
+-->  this is for leaders model
+{
+      "name": "Peter Pan",
+      "image": "images/alberto.png",
+      "designation": "Chief Epicurious Officer",
+      "abbr": "CEO",
+      "description": "Our CEO, Peter, . . .",
+      "featured": false
+}
