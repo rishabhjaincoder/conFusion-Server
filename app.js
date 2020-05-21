@@ -34,8 +34,51 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
+// at this point we will authenticate user coz from here user can request for the data and access that data
+var auth =(req,res,next)=>{
+  // just to check what is in the request header
+  console.log(req.headers);
+
+  // this authHeader will contain the complete strong,    basic <username:password>  ,so we will extract them later
+  var authHeader = req.headers.authorization;
+
+// this will run if the authheader/username,password is not given by the user
+  if (!authHeader){   
+    var err = new Error('You are not authenticated! ');
+    res.setHeader('WWW-Authenticate','Basic');
+    err.status = 401; // 401 means not authenticated
+    return next(err); // error handler will handle this error 
+  }
+
+  // this auth will contain an array with the username and the password
+  var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
+  // we are spliting the authHeader 2 times, first this will seperate [basic,username:pass] and then select 
+  // the user:pass from the array and then split again and make a array of username and password
+
+  var username = auth[0];
+  var password = auth[1];
+
+  // here we are using a fix username and password for this exercise, but lateron we will allow user
+  // to create username and the password by himself
+  if (username === 'admin' && password === 'password'){ // === means this will check for the datatype also
+    next(); // this means if the user is authenticated then allow him to proceed forward and use the
+              // middleware needed to complete this request
+  }
+  else{
+    // here we have to again challenge user to send correct username and password to authorize
+    var err = new Error('You are not authenticated! ');
+    res.setHeader('WWW-Authenticate','Basic');
+    err.status = 401; 
+    return next(err); // error handler will take care of that
+  }
+}
+
+app.use(auth);
+
+// for getting static content
+app.use(express.static(path.join(__dirname, 'public')));
+// for getting these routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);

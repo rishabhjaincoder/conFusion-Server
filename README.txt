@@ -74,3 +74,10 @@ and then perform all the opeations that are needed to check out application
       "description": "Our CEO, Peter, . . .",
       "featured": false
 }
+
+
+=======================================================================================================
+Authentication
+--> basic Authentication
+	here we have updated the app.js file and added basic Authentication for our application
+	and we have to supply will username and password in order to get the data that i want from the server
