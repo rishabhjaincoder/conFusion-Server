@@ -2,6 +2,7 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+// here cookie-parser is already required by the express generator
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
@@ -33,45 +34,69 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// here express generator has already included cookie-parser as a express middleware
+// but as we are using signed cookie,therefor we need to supply it with a key so that it can 
+//    encrypt the information and sign the cookie that is sent from the server to client
+app.use(cookieParser('12345-67890-'));
 
 // at this point we will authenticate user coz from here user can request for the data and access that data
-var auth =(req,res,next)=>{
+var auth = (req, res, next) => {
   // just to check what is in the request header
-  console.log(req.headers);
+  // console.log(req.headers);
+  console.log(req.signedCookies);
 
-  // this authHeader will contain the complete strong,    basic <username:password>  ,so we will extract them later
-  var authHeader = req.headers.authorization;
+  if (!req.signedCookies.user) {
+    // this authHeader will contain the complete strong,    basic <username:password>  ,so we will extract them later
+    var authHeader = req.headers.authorization;
 
-// this will run if the authheader/username,password is not given by the user
-  if (!authHeader){   
-    var err = new Error('You are not authenticated! ');
-    res.setHeader('WWW-Authenticate','Basic');
-    err.status = 401; // 401 means not authenticated
-    return next(err); // error handler will handle this error 
+    // this will run if the authheader/username,password is not given by the user
+    if (!authHeader) {
+      var err = new Error('You are not authenticated! ');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401; // 401 means not authenticated
+      return next(err); // error handler will handle this error 
+    }
+
+    // this auth will contain an array with the username and the password
+    // here we have used Buffer.from due to security reasons
+    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+    // we are spliting the authHeader 2 times, first this will seperate [basic,username:pass] and then select 
+    // the user:pass from the array and then split again and make a array of username and password
+
+    var username = auth[0];
+    var password = auth[1];
+
+    // here we are using a fix username and password for this exercise, but lateron we will allow user
+    // to create username and the password by himself
+    if (username === 'admin' && password === 'password') { // === means this will check for the datatype also
+      
+      // here we will create the cookie
+      res.cookie('user','admin',{ signed : true});
+      next(); // this means if the user is authenticated then allow him to proceed forward and use the
+      // middleware needed to complete this request
+    }
+    else {
+      // here we have to again challenge user to send correct username and password to authorize
+      var err = new Error('You are not authenticated! ');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      return next(err); // error handler will take care of that
+    }
+
   }
 
-  // this auth will contain an array with the username and the password
-  var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
-  // we are spliting the authHeader 2 times, first this will seperate [basic,username:pass] and then select 
-  // the user:pass from the array and then split again and make a array of username and password
-
-  var username = auth[0];
-  var password = auth[1];
-
-  // here we are using a fix username and password for this exercise, but lateron we will allow user
-  // to create username and the password by himself
-  if (username === 'admin' && password === 'password'){ // === means this will check for the datatype also
-    next(); // this means if the user is authenticated then allow him to proceed forward and use the
-              // middleware needed to complete this request
-  }
+  // if the signed cookie exists then we will check its value and then if its correct then allow him to move ahead
   else{
-    // here we have to again challenge user to send correct username and password to authorize
-    var err = new Error('You are not authenticated! ');
-    res.setHeader('WWW-Authenticate','Basic');
-    err.status = 401; 
-    return next(err); // error handler will take care of that
+    if (req.signedCookies.user === 'admin'){
+      next();
+    }
+    else{ // this part is not compulsary as we would not set the wrong cookie and its just for the sake of completeness
+      var err = new Error('You are not authenticated');
+      err.status = 401;
+      return next(err);
+    }
   }
+
 }
 
 app.use(auth);

@@ -81,3 +81,9 @@ Authentication
 --> basic Authentication
 	here we have updated the app.js file and added basic Authentication for our application
 	and we have to supply will username and password in order to get the data that i want from the server
+
+--> cookies
+	express generator has already required the cookie-parser, if not then install it by
+		npm install cookie-parser --save
+	
+	and we have done minor changes in the app.js file and checked that it the postman
