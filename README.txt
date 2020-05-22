@@ -87,3 +87,13 @@ Authentication
 		npm install cookie-parser --save
 	
 	and we have done minor changes in the app.js file and checked that it the postman
+
+--> Sessions 
+	first we need to install express-session and session-file-store using command
+		npm install express-session session-file-store --save
+
+	required these both things
+
+	set up the session by session.use({<many parameters in here>})
+
+	change cookieParser with session everywhere and you are good to go
