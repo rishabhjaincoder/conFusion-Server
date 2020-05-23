@@ -97,3 +97,12 @@ Authentication
 	set up the session by session.use({<many parameters in here>})
 
 	change cookieParser with session everywhere and you are good to go
+
+--> session part 2
+	here we will be creating login register and logout facility for user
+
+	create a model named user.js in model folder for storing user's data 
+
+	and then go to user router that the express generator has already created and edit that file
+
+	

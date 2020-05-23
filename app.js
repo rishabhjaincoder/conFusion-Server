@@ -36,9 +36,6 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// here express generator has already included cookie-parser as a express middleware
-// but as we are using signed cookie,therefor we need to supply it with a key so that it can 
-//    encrypt the information and sign the cookie that is sent from the server to client
 // app.use(cookieParser('12345-67890-09876-54321'));
 
 app.use(session({
@@ -49,44 +46,28 @@ app.use(session({
   store: new FileStore()
 }));
 
+// we have moved these 2 fields from initial position to here as we want them to get
+//    executed before the auth function 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
 var auth = (req, res, next) => {
+  console.log('\n\n'); // for a new line
   console.log(req.session);
 
   if (!req.session.user) {
-    var authHeader = req.headers.authorization;
-
-    if (!authHeader) {
       var err = new Error('You are not authenticated! ');
-      res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401; // 401 means not authenticated
       return next(err); // error handler will handle this error 
-    }
-
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-
-    var username = auth[0];
-    var password = auth[1];
-
-    if (username === 'admin' && password === 'password') { // === means this will check for the datatype also
-      req.session.user = 'admin';
-      next();
-    }
-    else {
-      // here we have to again challenge user to send correct username and password to authorize
-      var err = new Error('You are not authenticated! ');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      return next(err); // error handler will take care of that
-    }
-
+      // we are not handling login here as login can be done on /user/login
   }
   else{
-    if (req.session.user === 'admin'){
+    if (req.session.user === 'authenticated'){
       next();
     }
     else{
       var err = new Error('You are not authenticated');
-      err.status = 401;
+      err.status = 403;  // forbidden
       return next(err);
     }
   }
@@ -97,9 +78,10 @@ app.use(auth);
 
 // for getting static content
 app.use(express.static(path.join(__dirname, 'public')));
-// for getting these routes
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
+// we have moved these 2 commented fields before the function auth/ authorization
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
