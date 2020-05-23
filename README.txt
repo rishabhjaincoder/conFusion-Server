@@ -105,4 +105,6 @@ Authentication
 
 	and then go to user router that the express generator has already created and edit that file
 
-	
+	then bring / router and /users before the auth, so that user can be Authenticated
+
+	then check all the endpoints on postman
