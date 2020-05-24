@@ -108,3 +108,19 @@ Authentication
 	then bring / router and /users before the auth, so that user can be Authenticated
 
 	then check all the endpoints on postman
+=======================================================================================================
+Authentication using passport
+
+	install passport,passport local, passport local mongoose in the application by typing
+		npm install passport passport-local passport-local-mongoose --save
+
+	then in user.js file import passportlocalmongoose and do all the changes
+
+	create a new file named authenicate.js in the root folder and do the things
+
+	then in user.js router file do the changes
+
+	then do changes in auth function after requiring authenicate.js and passport
+
+	and check if its working or not
+	

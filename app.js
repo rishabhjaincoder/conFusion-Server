@@ -6,6 +6,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session); // session is to be passed here
+// here we have required these to fields to work with the passport node module
+var passport = require('passport');
+var authenticate = require('./authenticate');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -46,30 +49,27 @@ app.use(session({
   store: new FileStore()
 }));
 
+// 
+app.use(passport.initialize());
+app.use(passport.session());
+// the user information in request is stored by user.authenticate function in user router
+// passport.sesson seraialize the user data from req.user and store in the session
+
 // we have moved these 2 fields from initial position to here as we want them to get
 //    executed before the auth function 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 var auth = (req, res, next) => {
-  console.log('\n\n'); // for a new line
-  console.log(req.session);
 
-  if (!req.session.user) {
+  if (!req.user) {
       var err = new Error('You are not authenticated! ');
-      err.status = 401; // 401 means not authenticated
+      err.status = 403; 
       return next(err); // error handler will handle this error 
-      // we are not handling login here as login can be done on /user/login
   }
   else{
-    if (req.session.user === 'authenticated'){
-      next();
-    }
-    else{
-      var err = new Error('You are not authenticated');
-      err.status = 403;  // forbidden
-      return next(err);
-    }
+   next(); // if the req.user is present, that means passport has done the authetication
+              //  work in the user router user.authenticate and we can move further 
   }
 
 }

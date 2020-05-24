@@ -1,20 +1,17 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var passportLocalMongoose = require('passport-local-mongoose');
 
+// we have removed username and password field from here coz passport local mongoose will take care of that
 var User  = new Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password:{
-        type: String,
-        required:true
-    },
     admin:{
         type: Boolean,
         default: false
     }
 });
 
-module.exports = mongoose.model('User',User);
+User.plugin(passportLocalMongoose);
+// this will store the username and the hashed password here
+// and by this we can use many functions that we can use later in the user authentication
+
+module.exports = mongoose.model('User',User);       
