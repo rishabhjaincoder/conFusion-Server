@@ -9,6 +9,7 @@ var FileStore = require('session-file-store')(session); // session is to be pass
 // here we have required these to fields to work with the passport node module
 var passport = require('passport');
 var authenticate = require('./authenticate');
+var config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -23,7 +24,7 @@ const Promotions = require('./models/promotions');
 const Leaders = require('./models/leaders');
 
 // establishing connection to mongodb server using mongoose 
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
@@ -41,40 +42,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser('12345-67890-09876-54321'));
 
-app.use(session({
-  name : 'session-id',
-  secret : '12345-67890-09876-54321',
-  saveUninitialized : false,
-  resave : false,
-  store: new FileStore()
-}));
-
-// 
 app.use(passport.initialize());
-app.use(passport.session());
-// the user information in request is stored by user.authenticate function in user router
-// passport.sesson seraialize the user data from req.user and store in the session
 
 // we have moved these 2 fields from initial position to here as we want them to get
 //    executed before the auth function 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-var auth = (req, res, next) => {
-
-  if (!req.user) {
-      var err = new Error('You are not authenticated! ');
-      err.status = 403; 
-      return next(err); // error handler will handle this error 
-  }
-  else{
-   next(); // if the req.user is present, that means passport has done the authetication
-              //  work in the user router user.authenticate and we can move further 
-  }
-
-}
-
-app.use(auth);
 
 // for getting static content
 app.use(express.static(path.join(__dirname, 'public')));

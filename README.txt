@@ -124,3 +124,27 @@ Authentication using passport
 
 	and check if its working or not
 	
+=======================================================================================================
+Authentication using Tokens
+
+	first install 
+		npm install passport-jwt jsonwebtoken --save
+
+	add a file config.js in the root folder and add configuration for our server
+
+	then import passport-jwt in the authenicate.js file and do all the changes
+
+	then we will be creating and passing the tokken to the user in users router login wala part
+
+	now open app.js file and require config and do other changes
+
+	now in all the routes import authenicate.js file
+
+	now to set different Authentication on different users, we need to make changes to each
+		router end point 
+
+	in the postman copy the token string that you got after login and then in header in Authentication write
+		bearer <paste the string>
+
+
+	
