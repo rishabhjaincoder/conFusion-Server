@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
 
 // we have done this thing using passport mongoose functions
 router.post('/signup', (req, res, next) => {
-  // User.register is a pass local mon. function to create a user and this takes 3 parameters
+  // User.register is a passport local mongoose function to create a user and this takes 3 parameters
       // username password and a function
   User.register(new User({username: req.body.username}), 
     req.body.password, (err, user) => {
@@ -26,11 +26,26 @@ router.post('/signup', (req, res, next) => {
       res.json({err: err});
     }
     else {
-      passport.authenticate('local')(req, res, () => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({success: true, status: 'Registration Successful!'});
+      // adding firstname and lastname as well
+      if(req.body.firstname){
+        user.firstname = req.body.firstname;
+      }
+      if(req.body.lastname){
+        user.lastname = req.body.lastname;
+      }
+      user.save((err,user)=>{
+        if (err){
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({err: err});
+        }
+        passport.authenticate('local')(req, res, () => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({success: true, status: 'Registration Successful!'});
+        });
       });
+
     }
   });
 });

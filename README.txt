@@ -147,4 +147,45 @@ Authentication using Tokens
 		bearer <paste the string>
 
 
+=======================================================================================================
+Mongoose population
+
+	in the user.js model file update the user schema, add few fields like firstname lastname etc
+
+	now in dishes.js model modify the author field in comment schema and make reference to the User schema
+
+	now we will do changes in the dishrouter by using .populate('comments.author')
+	and when adding a comment then fetch current user and then store it in req.body.author
+		like this  ->          req.body.author = req.user._id;
+		and do minor changes in the dishrouter.js file
+
+	now we have to do minor changes in users.js router signup field	
+		we are inserting first name and the lastname, when user signups
+
+	before turning on the server, we have to delete existing users from users collection
+		as they does not contain firstname and lastname, use these commands
+		->		use conFusion;
+		->		db.users.drop();           // this will drop all the documents within a collection
+		->		db.users.find().pretty();   // to view content of the users collection
+			// but in our case this will return nothing as our collection is empty
+	
+	now check the application using postman
+
+	-> for posting a dish, include this in body
+		{
+		"name":"Rishabh",
+		"image":"images/rishabh.png",
+		"category": "mains",
+		"label": "hot",
+		"price": "4.99",
+		"featured": "true",
+		"description": "this is a test for the mongoose server",
+		"comments": []
+	}
+	
+	here we haven't added the comments field as we will add this through 
+			/dishes/1413432424/comments
+	and in all the requests we have to add Authentication header containing
+			bearer <token_string>
+
 	
