@@ -188,4 +188,19 @@ Mongoose population
 	and in all the requests we have to add Authentication header containing
 			bearer <token_string>
 
+=======================================================================================================
+creating admin and giving permissions
+
+	first create a new user using signup option and then signup admin using username "admin"
+	
+	after creating admin account using signup, admin : false by default, so we need to make it 
+			true behind the scenes, use mongo repl and write command
+			->	db.users.update({"username":"admin"},{$set: {"admin":"true"}})
+			-> check if the admin has become true or not by
+				-> db.users.find().pretty();
+
+	--> now assignment part
+
+
+
 	

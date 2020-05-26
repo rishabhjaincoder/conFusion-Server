@@ -58,3 +58,14 @@ opts.secretOrKey = config.secretKey;
 // we will be using this to verify the user
 exports.verifyUser = passport.authenticate('jwt',{session:false});
 // here jwt is the strategy that we will be using
+
+exports.verifyAdmin = (req,res,next)=>{
+    if(req.user.admin == false){
+        var err = new Error('You are not authorized to perform this operation!  ');
+        err.status = 403; 
+        return next(err);
+    }
+    else if(req.user.admin == true){
+        return next();
+    }
+};
