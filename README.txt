@@ -238,3 +238,32 @@ week 4 ------------------------------------ HTTPS ------------------------------
 
 
 
+=======================================================================================================
+Upload Files 
+
+	first install multer in order to upload files using
+		npm install multer --save
+
+	Create a new file in the routes folder named uploadRouter.js and configure this
+
+	now we will go to app.js and configure uploadRouter there
+
+	now test postman to upload images files
+		in the postman settings, turn SSL certificate verification -> OFF , so that 
+		postman will not verify our certificate which we have created using OPENSSL 
+		and we can use https there
+
+	imp: in the postman body option and form data and in the key write "imageFile", coz
+		in the uploadRouter we have configured the key named "imageFile"
+
+	{
+    "fieldname": "imageFile",
+    "originalname": "68916873_1385118898332463_6640642394557513728_o.jpg",
+    "encoding": "7bit",
+    "mimetype": "image/jpeg",
+    "destination": "public/images",
+    "filename": "68916873_1385118898332463_6640642394557513728_o.jpg",
+    "path": "public\\images\\68916873_1385118898332463_6640642394557513728_o.jpg",
+    "size": 182830
+	}     
+// this we will get in response after uploading a file
