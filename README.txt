@@ -204,3 +204,37 @@ creating admin and giving permissions
 
 
 	
+=======================================================================================================
+week 4 ------------------------------------ HTTPS --------------------------------------------
+
+	in the bin folder/ we will be going to create our private key and the certificate for HTTPS server
+		using command line tool "OPENSSL"
+
+	for downloading and installing open ssl these are the various links
+	-> https://wiki.openssl.org/index.php/Binaries
+	// i used this link
+	-> https://blog.didierstevens.com/2015/03/30/howto-make-your-own-cert-with-openssl-on-windows/
+	-> https://www.faqforge.com/windows/use-openssl-on-windows/
+	-> http://www.selfsignedcertificate.com/
+
+	// do all these things in cmd not power shell
+	then in bin folder inside root create private key using command
+		openssl genrsa 1024 > private.key
+	now we will create cert.csr file
+		openssl req -new -key private.key -out cert.csr
+	now from cert.csr we will generate distribution certificate like this
+		openssl x509 -req -in cert.csr -signkey private.key -out certificate.pem
+
+	now after all these commands we have created 3 files in the bin folder 
+		cert.csr	 certificate.pem	 private.key
+
+	now we will edit the www file in the bin folder
+
+	after configurating the secure server in www, we have to update app.js, so that if a request
+		come to insecure port, it will be redirected to secure port!
+
+	now test using https://localhost:3443/ in browser
+	and this will redirect insecure url to secure url
+
+
+
