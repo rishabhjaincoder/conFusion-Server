@@ -2,75 +2,80 @@ var express = require('express');
 const bodyParser = require('body-parser');
 var passport = require('passport');
 var authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const mongoose = require('mongoose');
-var User = require('../models/user'); 
+var User = require('../models/user');
 
 var router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/',authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=> {
-    User.find({})
-        .then((users)=>{
-            res.statusCode = 200;
-            res.setHeader('Content-Type','application/json');
-            res.json(users);
-        },(err)=> next(err))
-        .catch((err)=> next(err));
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  User.find({})
+    .then((users) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(users);
+    }, (err) => next(err))
+    .catch((err) => {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ err: err });
+    });
 });
 
 // we have done this thing using passport mongoose functions
-router.post('/signup', (req, res, next) => {
+router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   // User.register is a passport local mongoose function to create a user and this takes 3 parameters
-      // username password and a function
-  User.register(new User({username: req.body.username}), 
+  // username password and a function
+  User.register(new User({ username: req.body.username }),
     req.body.password, (err, user) => {
-    if(err) {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'application/json');
-      res.json({err: err});
-    }
-    else {
-      // adding firstname and lastname as well
-      if(req.body.firstname){
-        user.firstname = req.body.firstname;
+      if (err) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ err: err });
       }
-      if(req.body.lastname){
-        user.lastname = req.body.lastname;
-      }
-      user.save((err,user)=>{
-        if (err){
-          res.statusCode = 500;
-          res.setHeader('Content-Type', 'application/json');
-          res.json({err: err});
+      else {
+        // adding firstname and lastname as well
+        if (req.body.firstname) {
+          user.firstname = req.body.firstname;
         }
-        passport.authenticate('local')(req, res, () => {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json({success: true, status: 'Registration Successful!'});
+        if (req.body.lastname) {
+          user.lastname = req.body.lastname;
+        }
+        user.save((err, user) => {
+          if (err) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ err: err });
+          }
+          passport.authenticate('local')(req, res, () => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ success: true, status: 'Registration Successful!' });
+          });
         });
-      });
 
-    }
-  });
+      }
+    });
 });
 
 // here we will be using the token that we have implemented in the authentication.js file
 // er will include _id in the getToken params as we dont want other things to get included in the token
-router.post('/login', passport.authenticate('local'), (req, res) => {
-  
-  var token = authenticate.getToken({_id: req.user._id});
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
+
+  var token = authenticate.getToken({ _id: req.user._id });
   // we are able to use req.user here coz this callback function gets called after passport.authenticate gets executed
   // and its the work of passport authenticate to adds user info to req.user
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, token: token, status: 'You are successfully logged in!'});
+  res.json({ success: true, token: token, status: 'You are successfully logged in!' });
   // here in the res.json we will send back the token to the user in the form of string here
 });
 
 
-router.get('/logout', (req, res) => { // here we have used get to logout coz we are not storing any data onto server
+router.get('/logout', cors.cors, (req, res) => { // here we have used get to logout coz we are not storing any data onto server
   if (req.session) {  // if session exists then delete the cookie
     req.session.destroy();  // this will delete the session file from the server
     res.clearCookie('session-id');

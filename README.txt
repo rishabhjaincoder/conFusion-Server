@@ -267,3 +267,41 @@ Upload Files
     "size": 182830
 	}     
 // this we will get in response after uploading a file
+
+=======================================================================================================
+CORS
+	first install cors node module using
+		npm install cors --save
+
+	in routes folder create a New file named cors.js and configure cors module here!
+
+	now upload the exported methods from the cors.js file in all the routes
+
+	after applying cors.cors and cors.corsWithOptions in all the routes, then you are good to go
+
+	now go to postman and check wheather its working or not
+	-> send a get request on localhost:3000/dishes and you will recieve a header named
+			access control allow origin with a value * (wildcard), this is because we have used 
+			cors.cors on get router 
+			-> this means any origin can access this resourse
+	
+	-> now after loginin as an admin and putting the token in the Authentication header with the value
+		bearer <token> , we will include a header named origin, which in our case is https://localhost:3443
+			note:   here we are sending a delete request to dishes using http, which is
+				localhost:3000/dishes   <DELETE> request
+	-> now we have 2 headers in the request 
+		1) Authentication header with token_string
+		2) origin header with origin url (note: in brower, we dont need to explicitely add this as this is done automatically by the browser)	
+
+		now after sending the request, in response we get a header named 
+			access control allow origin with a value https://localhost:3443
+			coz we have defined this in our whitelist, so it didn't throw an error
+
+	-> to send a preflight,
+		now select the select options in the postman and the url types is
+			https://localhost:3443/dishes
+			-> and add origin in the header set to https://localhost:3443
+			-> you will notice that this will return no content but in header it will return 2 fields		
+				1) Access-Control-Allow-Methods : GET,HEAD,PUT,PATCH,POST,DELETE
+					// these are the methods that server is willing to accept
+				2) Access-Control-Allow-Origin : https://localhost:3443
