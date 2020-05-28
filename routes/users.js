@@ -88,4 +88,21 @@ router.get('/logout', cors.cors, (req, res) => { // here we have used get to log
   }
 });
 
+// if user sends a GET request to the server with this endpoint, then we will authenticate the user using facebook oauth strategy
+router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+  // here after using passport.authenticate('facebook-token'), user data is available to us on req.user
+
+  // imp** the user is sending the access token to the express server, the express server uses the 
+  // accessToken to go to Facebook and then fetch the profile of the user. And if the user doesn't exist,
+  //  we'll create a new user with that Facebook ID. And then after that, then our express server will
+  // generate a JSON web token and then return the JSON web token to our client.
+  if (req.user) {
+    // here we will create a token as user is now registered with us and return that in response
+    var token = authenticate.getToken({ _id: req.user._id });
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success: true, token: token, status: 'You are successfully logged in!' });
+  }
+});
+
 module.exports = router;

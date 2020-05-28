@@ -305,3 +305,73 @@ CORS
 				1) Access-Control-Allow-Methods : GET,HEAD,PUT,PATCH,POST,DELETE
 					// these are the methods that server is willing to accept
 				2) Access-Control-Allow-Origin : https://localhost:3443
+
+=======================================================================================================
+OAuth and user Authentication
+	we will be using oauth 2 and try to implement it in our express application
+	
+	you need to register your express application on facebook and you should have an account on facebook
+
+
+	-> in developers.facebook.com create an app named conFusion
+	-> in settings>basic select "add platform" and add a website 
+			https://localhost:3443
+	-> then in settings>advanced  turn "native or desktop app" option ON.
+		and save the changes
+	-> then in settings>basic , in "App Domain" field write
+			https://localhost:3443/                (note:  add / in the last)
+	
+	in the exercise instruction, there is a file named index.html, download that file and
+		add that file in public folder (note: delete previous index.html file)
+
+	in line 34 of updated index.html file, replace a string client id with the actual
+		client if from facebook (note: scripts in this file is provided by the facebook)
+	
+	now, we have to install passport facebook token node module by this command
+			npm install passport-facebook-token --save
+
+	in config.js file add a property named facebook and add clientId and clientSecret there
+
+	in user.js model add a new field named facebookId 
+
+	in authenicate.js file add a facebook token strategy
+
+	after that in users.js route, we need to create a new route
+
+	now startup the server and test our application on browser
+	-> go to https://localhost:3443/index.html and signup using facebook account,
+		and in response you will get an object from facebook contain all the info like]
+			accessToken, userId, etc
+	-> copy the accessToken from the ctrl + shift + i 
+		"EAAMsZA2I3S1gBAIxzmVXFbcjsanKKuS8q1vdWFDZBRGSevAxalnTQcPHLKA2YgIYIN8EUlejiRdg5ZC7C0mo4p9HEZCaL0YnMxbY5ZASDM1XdVhSlJBrdUyEhUXFD89qCb4XzW42idjKWpK94MNC9GUS9eMQYMgZCPnJFqFVdoHInxiDApXJnpZBEyUDjYnXr0ZD"
+		right now this is now access key
+	-> now as we got our access token , we can go to postman and send this to server to obtain json web token
+
+	-> now in postman do a GET request on https://localhost:3443/users/facebook/token and 
+		
+
+
+		[**	
+		
+		include a Authentication header named Authentication 
+		and value should be Bearer <accessToken> (note:  in the Bearer, B should be capital)
+		
+										OR
+		
+		include a header named access_token with value : <accessToken> 
+		(note: here there is no need to write Bearer, just add the access token)
+		
+										OR
+		
+		pass access_token as a parameters like this
+		https://localhost:3443/users/facebook/token?access_token=EAAMsZA2I3S1gBAIxzmVXFbcjsanKKuS8q1vdWFDZBRGSevAxalnTQcPHLKA2YgIYIN8EUlejiRdg5ZC7C0mo4p9HEZCaL0YnMxbY5ZASDM1XdVhSlJBrdUyEhUXFD89qCb4XzW42idjKWpK94MNC9GUS9eMQYMgZCPnJFqFVdoHInxiDApXJnpZBEyUDjYnXr0ZD
+			
+		**]	
+
+
+
+	-> now after sending this request, we will recieve a json web token, copy that and now we can perform
+		the normal user operations.
+		token->     eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWQwMDAxMjc2MjQ1MTIwMzhkYzhiNDMiLCJpYXQiOjE1OTA2ODk4MTAsImV4cCI6MTU5MDY5MzQxMH0.rBBJBD3HlVaYMf-gABA9TaxWB4vMasPfuDHgPWXoBGI
+			(in our case, this is the token that we have recieved)
+	
